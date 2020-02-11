@@ -1,0 +1,7 @@
+.gradle
+.idea
+gradle
+/gradle/wrapper/gradle-wrapper.jar
+**/out/**
+**/target/**
+**/build/**
