@@ -357,6 +357,12 @@ files:
         }
     }
   learner_created: false
+- name: SomeFile.txt
+  visible: true
+  learner_created: true
+- name: AnotherFile.txt
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/38/stages/202/implement
-status: Unchecked
+status: Solved
 record: -1
