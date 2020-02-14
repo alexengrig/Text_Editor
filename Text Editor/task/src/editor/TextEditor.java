@@ -21,9 +21,31 @@ public class TextEditor extends JFrame {
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setContentPane(contentPane);
         setLayout(new BorderLayout(20, 20));
+        initMenu();
         initComponents();
         setVisible(true);
         setLocationRelativeTo(null);
+    }
+
+    private void initMenu() {
+        JMenuItem menuLoad = new JMenuItem("Load");
+        menuLoad.setName("MenuLoad");
+        menuLoad.addActionListener(getLoadListener());
+        JMenuItem menuSave = new JMenuItem("Save");
+        menuSave.setName("MenuSave");
+        menuSave.addActionListener(getSaveListener());
+        JMenuItem menuExit = new JMenuItem("Exit");
+        menuExit.setName("MenuExit");
+        menuExit.addActionListener(getExitListener());
+        JMenu menuFile = new JMenu("File");
+        menuFile.setName("MenuFile");
+        menuFile.add(menuLoad);
+        menuFile.add(menuSave);
+        menuFile.addSeparator();
+        menuFile.add(menuExit);
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(menuFile);
+        setJMenuBar(menuBar);
     }
 
     private void initComponents() {
@@ -113,5 +135,11 @@ public class TextEditor extends JFrame {
             new IllegalArgumentException("File does not exist: " + file.getAbsolutePath()).printStackTrace();
         }
         return builder.toString();
+    }
+
+    private ActionListener getExitListener() {
+        return e -> {
+            System.exit(0);
+        };
     }
 }
