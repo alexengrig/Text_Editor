@@ -793,6 +793,27 @@ files:
         }
     }
   learner_created: false
+- name: src/main/resources/icons/folder.png
+  visible: true
+  learner_created: true
+- name: src/main/resources/icons/floppy-disk.png
+  visible: true
+  learner_created: true
+- name: src/main/resources/icons/search.png
+  visible: true
+  learner_created: true
+- name: src/main/resources/icons/chevron.png
+  visible: true
+  learner_created: true
+- name: src/main/resources/icons/right-chevron.png
+  visible: true
+  learner_created: true
+- name: SomeFile.txt
+  visible: true
+  learner_created: true
+- name: AnotherFile.txt
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/38/stages/204/implement
-status: Unchecked
+status: Failed
 record: -1
