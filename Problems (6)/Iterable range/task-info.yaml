@@ -1,0 +1,24 @@
+type: code
+files:
+- name: src/Main.java
+  visible: true
+  text: |-
+    class Range implements Iterable<Long> {
+
+        private long fromInclusive;
+        private long toExclusive;
+
+        public Range(long from, long to) {
+            this.fromInclusive = from;
+            this.toExclusive = to;
+        }
+
+        @Override
+        public Iterator<Long> iterator() {
+            // write your code here
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/2796
+status: Solved
+record: -1
