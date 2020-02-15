@@ -16,7 +16,7 @@ public class TextEditor extends JFrame {
     private JTextField searchField;
     private int nextIndex;
     private int previousIndex;
-    private JCheckBox regexCheckBox;
+    private JCheckBox useRegexCheckBox;
     private JFileChooser fileChooser;
 
     public TextEditor() {
@@ -106,26 +106,31 @@ public class TextEditor extends JFrame {
     private JMenuItem initStartSearchMenuItem() {
         JMenuItem startSearchMenuItem = new JMenuItem("Start search");
         startSearchMenuItem.setName("MenuStartSearch");
+        startSearchMenuItem.addActionListener(getStartSearchListener());
         return startSearchMenuItem;
     }
 
     private JMenuItem initPreviousMatchMenuItem() {
         JMenuItem previousMatchMenuItem = new JMenuItem("Previous match");
         previousMatchMenuItem.setName("MenuPreviousMatch");
+        previousMatchMenuItem.addActionListener(getPreviousMatchListener());
         return previousMatchMenuItem;
     }
 
     private JMenuItem initNextMatchMenuItem() {
         JMenuItem nextSearchMenuItem = new JMenuItem("Next match");
         nextSearchMenuItem.setName("MenuNextMatch");
+        nextSearchMenuItem.addActionListener(getNextMatchListener());
         return nextSearchMenuItem;
     }
 
     private JMenuItem initUseRegexpMenuItem() {
         JMenuItem useRegExpMenuItem = new JMenuItem("Use regular expression");
         useRegExpMenuItem.setName("MenuUseRegExp");
+        useRegExpMenuItem.addActionListener(e -> useRegexCheckBox.setSelected(!useRegexCheckBox.isSelected()));
         return useRegExpMenuItem;
     }
+
 
     private void initComponents() {
         JPanel topPanel = new JPanel();
@@ -221,7 +226,7 @@ public class TextEditor extends JFrame {
     private Component initRegexCheckBox() {
         JCheckBox regexCheckBox = new JCheckBox("Use regex");
         regexCheckBox.setName("UseRegExCheckbox");
-        this.regexCheckBox = regexCheckBox;
+        this.useRegexCheckBox = regexCheckBox;
         return regexCheckBox;
     }
 
@@ -232,6 +237,8 @@ public class TextEditor extends JFrame {
         this.fileChooser = fileChooser;
         return fileChooser;
     }
+
+    // Listeners
 
     private ActionListener getSaveListener() {
         return e -> {
@@ -245,14 +252,6 @@ public class TextEditor extends JFrame {
         };
     }
 
-    private void save(File file, String text) {
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(text);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private ActionListener getLoadListener() {
         return e -> {
             fileChooser.setVisible(true);
@@ -263,6 +262,36 @@ public class TextEditor extends JFrame {
                 textArea.setText(text);
             }
         };
+    }
+
+    private ActionListener getExitListener() {
+        return e -> System.exit(0);
+    }
+
+    private ActionListener getStartSearchListener() {
+        return e -> {
+            nextIndex = -1;
+            previousIndex = -1;
+            nextMatch();
+        };
+    }
+
+    private ActionListener getNextMatchListener() {
+        return e -> nextMatch();
+    }
+
+    private ActionListener getPreviousMatchListener() {
+        return e -> previousMatch();
+    }
+
+    // Helpers
+
+    private void save(File file, String text) {
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(text);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String load(File file) {
@@ -284,22 +313,6 @@ public class TextEditor extends JFrame {
         return builder.toString();
     }
 
-    private ActionListener getExitListener() {
-        return e -> System.exit(0);
-    }
-
-    private ActionListener getStartSearchListener() {
-        return e -> {
-            nextIndex = -1;
-            previousIndex = -1;
-            nextMatch();
-        };
-    }
-
-    private ActionListener getNextMatchListener() {
-        return e -> nextMatch();
-    }
-
     private void nextMatch() {
         String query = searchField.getText();
         if (query.isEmpty()) {
@@ -308,7 +321,7 @@ public class TextEditor extends JFrame {
         String text = textArea.getText();
         int begin;
         int end;
-        if (!regexCheckBox.isSelected()) {
+        if (!useRegexCheckBox.isSelected()) {
             int index = text.indexOf(query, nextIndex);
             if (index != -1) {
                 begin = index;
@@ -338,20 +351,16 @@ public class TextEditor extends JFrame {
         nextIndex = end;
     }
 
-    private ActionListener getPreviousMatchListener() {
-        return e -> previousMatch();
-    }
-
     private void previousMatch() {
         String query = searchField.getText();
         if (query.isEmpty()) {
             return;
         }
         String text = textArea.getText();
-        int begin;
+        int begin = 0;
+        String line = null;
         int end;
-        String line;
-        if (!regexCheckBox.isSelected()) {
+        if (!useRegexCheckBox.isSelected()) {
             int index = text.lastIndexOf(query, previousIndex);
             if (index != -1) {
                 begin = index;
@@ -365,21 +374,27 @@ public class TextEditor extends JFrame {
         } else {
             Pattern regex = Pattern.compile(query);
             Matcher matcher = regex.matcher(text);
-            if (previousIndex > 0 && matcher.find(previousIndex)) {
-                begin = matcher.start();
-                line = matcher.group();
-            } else if (matcher.find(text.length())) {
-                begin = matcher.start();
-                line = matcher.group();
-            } else {
+            if (previousIndex > 0) {
+                int start;
+                while (matcher.find() && (start = matcher.start()) <= previousIndex) {
+                    line = matcher.group();
+                    begin = start;
+                }
+            } else if (previousIndex < 0) {
+                while (matcher.find()) {
+                    begin = matcher.start();
+                    line = matcher.group();
+                }
+            }
+            if (line == null) {
                 return;
             }
             end = begin + line.length();
         }
         selectText(begin, end);
         nextIndex = previousIndex;
-        previousIndex = begin - line.length();
-        System.out.println("next: " + nextIndex + ", prev: " + previousIndex);
+        previousIndex = begin - 1;
+        System.out.println(previousIndex);
     }
 
     private void selectText(int begin, int end) {
